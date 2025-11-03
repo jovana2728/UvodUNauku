@@ -585,22 +585,4 @@ ggplot(model_results, aes(x = Model, y = Accuracy, fill = Model)) +
   theme(legend.position = "none")
 
 #=======================================================================================================================
-# U ovom projektu analizirali smo podatke o korisnicima kreditnih kartica i pokušali da predvidimo
-# da li će klijent kasniti sa plaćanjem (DEFAULT). 
-# Tokom rada urađena je kompletna obrada podataka – od čišćenja i prilagođavanja vrednosti,
-# preko kreiranja novih pokazatelja, do izgradnje i testiranja modela.
 
-# Logistička regresija se pokazala kao dobar izbor jer jasno pokazuje koji faktori najviše utiču na rizik kašnjenja.
-# Najvažnija promenljiva bila je odnos prosečnog iznosa računa i kreditnog limita (ratio_bill_limit).
-# Klijenti koji koriste veći deo svog limita imaju veću verovatnoću da zakasne sa plaćanjem.
-
-# Model je imao tačnost od oko 57% i AUC oko 0.64, što znači da umereno dobro razlikuje
-# sigurne i rizične klijente. Testiranjem različitih pragova i dodavanjem interakcija
-# dobili smo mala, ali realna poboljšanja. 
-
-# Možemo zaključiti da finansijski faktori imaju mnogo veći uticaj od demografskih (kao što su pol ili bračni status).
-# U budućim verzijama, model bi mogao da se unapredi primenom naprednijih algoritama 
-# (Random Forest, XGBoost) ili dodatnim podacima o ponašanju korisnika (npr. istorija plaćanja po mesecima).
-
-# Ukupno gledano, model je uspešno pokazao osnovne principe prediktivne analize
-# i jasno povezao finansijsko ponašanje klijenata sa rizikom od neplaćanja.
