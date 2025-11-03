@@ -3,11 +3,9 @@ library(tidyverse)
 library(dplyr)
 library(ggplot2)
 library(readxl) 
-#Neophodne biblioteke
 
-#setwd("C:/Users/Djole/Desktop/UUNOP Seminarski")
 setwd("E:/faks/letnji/uvod u nauku/Projekat/UUNOP Seminarski")
-#Podesavanje potrebnog wd
+
 
 df <- read_csv("UCI_Credit_Card.csv")
 
@@ -22,15 +20,11 @@ summary(df)
 #definisano spiskom podrazumevanih vrednosti, za PAY kolone postoje min vrednosti -2 koje takođe nisu definisane podrazumevanim
 #vrednostima
 
-#U iznosima mesečnih računa odnosno BILL_AMT postoje negativne vrednosti računa, što nije unutar opsega, ali bi potencijalno mogla
-#bude preplata računa
-
 table(df$SEX)
-#vrednosti su korektne, na osnovu odnosa primećujemo da ima više žena nego muškaraca
+#Vrednosti su korektne, na osnovu odnosa primećujemo da ima više žena nego muškaraca
 
 table(df$EDUCATION)
-#Vrednost 0 je nedefinisana, vrednosti 5 i 6 smatraju se nepoznatim vrednostima, tako da bi se to ili moglo spojiti u jednu grupu nepoznatih,
-#Ili se potencijalno grupisati zajedno sa 0
+#Vrednost 0 je nedefinisana, vrednosti 5 i 6 smatraju se nepoznatim vrednostima,
 
 table(df$MARRIAGE)
 
@@ -43,20 +37,9 @@ df %>%
 
 df
 
-#Primećujemo da i za marriage i za education postoji po 54 vrednosti 0, koja ne pripada standardnim vrednostima, ali se na osnovu
-#filtera može primetiti da se nigde ne poklapaju (nijedan red nema obe vrednosti 0)
-
-
-#za tabelu marriage možemo uočiti da ima vrednost 0, koja je nedefinisana, iako samo 54 vrednosti imaju tu vrednost
-
-#Podešavanje vrednosti 0 i 6 za EDUCTAION smestićemo u vrednosti 5, pošto su i vrednosti 5 i 6 unknown
-
 df$EDUCATION[df$EDUCATION %in% c(0, 6)] <- 5
 
 summary(df$AGE)
-
-#Kao što možemo zaključiti na osnovu reda sa godinama svi su u godinama kada je brak validan, stoga su postojeće kategorije u redu.
-#odnosno, ne treba kreirati dodatne kategorije kao što su unmarried i slično
 
 df$MARRIAGE[df$MARRIAGE == 0] <- 3
 
@@ -67,17 +50,12 @@ summary(df)
 #PROVERAVANJE NEODREĐENE -2 VREDNOSTI U DEMOGRAFSKIM FEATURIMA, GODINE, POL, EDUKACIJA, BRAK
 
 
-#broj klijenata koji imaju vrednost -2 za sva plaćanja
+#Broj klijenata koji imaju vrednost -2 za sva plaćanja
 sum(apply(df[, c("PAY_0","PAY_2","PAY_3","PAY_4","PAY_5","PAY_6")], 1, function(x) all(x == -2)))
 
-#broj klijenata koji imaju vrednost -2 za bar neko plaćanje
+#Broj klijenata koji imaju vrednost -2 za bar neko plaćanje
 sum(apply(df[, c("PAY_0","PAY_2","PAY_3","PAY_4","PAY_5","PAY_6")], 1, function(x) any(x == -2)))
 
-
-#radimo proveru da li se na neki način klijenti koji za svoje vrednosti podmirenja imaju -2 vrednost izdvajaju
-#u odnosu na sve ostale klijente
-
-#prvo proveravamo njihov prosečni kreditni limit i godine
 
 df %>%
   mutate(has_minus2 = apply(select(., PAY_0, PAY_2, PAY_3, PAY_4, PAY_5, PAY_6), 1, function(x) any(x == -2))) %>%
@@ -87,31 +65,20 @@ df %>%
     avg_age = mean(AGE),
   )
 
-#na osnovu tabele koju dobijamo primećujemo da imaju viši kreditni limit za oko 25 procenata u odnosu na one koji to nemaju,
-#pa bi se moglo reći da im banka daje veće poverenje, odnosno da su pouzdaniji po pitanju podmirenja svojih dugova
 
-
-#ovde proveravamo da li je edukacija ikako povezana sa vrednostima -2
 df %>%
   mutate(has_minus2 = apply(select(., PAY_0, PAY_2, PAY_3, PAY_4, PAY_5, PAY_6), 1, function(x) any(x == -2))) %>%
   group_by(has_minus2, EDUCATION) %>%
   summarise(n = n()) %>%
   mutate(share = n / sum(n))
 
-#jedino što na osnovu ovoga možemo zaključiti jeste da korisnici koji pripadaju ovoj grupi imaju donekle više nivoe
-#obrazovanja, što u generalnom slučaju može takođe ukazati da potencijalno imaju stabilnije prihode i bolje razumevanje
-#svojih obaveza
 
-#zatim proveravamo da li pol ima ikakve veze
 
 df %>%
   mutate(has_minus2 = apply(select(., PAY_0, PAY_2, PAY_3, PAY_4, PAY_5, PAY_6), 1, function(x) any(x == -2))) %>%
   group_by(has_minus2, SEX) %>%
   summarise(n = n()) %>%
   mutate(share = n / sum(n))
-#jedino što zaključujemo je da je malo veći procenat žena u oba slučaja, što se poklapa sa generalnom slikom dataseta
-
-#za kraj proveravamo da li činjenica da su u braku ima ikakve veze sa time
 
 df %>%
   mutate(has_minus2 = apply(select(., PAY_0, PAY_2, PAY_3, PAY_4, PAY_5, PAY_6), 1, function(x) any(x == -2))) %>%
@@ -119,33 +86,15 @@ df %>%
   summarise(n = n()) %>%
   mutate(share = n / sum(n))
 
-#kao što je očekivano, bračni status nije značajan faktor, ali govori da su oni u bračnoj zajednici u maloj meri imaju
-#češće mesece bez duga
-
-
-#NA OSNOVU SVEGA ŠTO JE UOČENO IZ PREGLEDA OVIH DEMOGRAFSKIH FEATUREA, JASNO JE DA SU KORISNICI KOD KOJIH POSTOJI ZA NEKI
-#MESEČNI RAČUN SA OZNAKOM -2, EVIDENTNO POUZDANIJI KORISNICI, ODNOSNO DA NEMAJU ČESTE NEIZMIRENE RAČUNE
-
-#kod -2 za plaćanja potencijalno može biti neki interni kod unutar banke tj. institucije na koju se odnosi, a mi ćemo,
-#s obzirom na zaključke do kojih smo došli analizom, te vrednosti staviti kao -1, odnosno da je račun uredno plaćen bez kašnjenja
-
-
-#dodaćemo i flag kolonu has_minus2 kako bismo zadržali info o tome koji korisnici su imali te vrednosti
-
 df$had_minus2 <- apply(df[, c("PAY_0","PAY_2","PAY_3","PAY_4","PAY_5","PAY_6")],
                        1, function(x) any(x == -2))
-
-#zamenjujemo vrednosti -2 sa -1
 
 pay_cols <- c("PAY_0","PAY_2","PAY_3","PAY_4","PAY_5","PAY_6")
 
 df[, pay_cols] <- lapply(df[, pay_cols], function(x) ifelse(x == -2, -1, x))
 
-#proveravamo da li su se neke vrednosti -2 zadržale
 
 sapply(df[, pay_cols], function(x) any(x == -2))
-
-#pošto nisu uspešno smo zamenili sve
 str(df)
 
 #====================================================================================================================
@@ -248,7 +197,7 @@ numeric_df <- df %>%
 summary(numeric_df)
 # Računanje korelacione matrice
 corr_matrix <- cor(numeric_df, use = "complete.obs")
-head(corr_matrix[, 1:6])
+head(corr_matrix)
 
 # Korelaciona matrica (vizuelni prikaz)
 ggcorrplot(corr_matrix,
@@ -267,6 +216,71 @@ ggcorrplot(corr_matrix,
 # što ukazuje na slabu ili negativnu vezu.
 # Dakle najjače korelacije su kod mesečnih iznosa uplata i računa,
 # dok su godine, pol i bračni status uglavnom nezavisni od ostalih promenljivih.
+
+
+table(df$SEX, df$DEFAULT)
+prop.table(table(df$SEX, df$DEFAULT), 1) * 100
+
+# Pol vs status plaćanja
+ggplot(df, aes(x = factor(SEX, labels = c("Muškarci", "Žene")), fill = DEFAULT)) +
+  geom_bar(position = "fill") +
+  labs(title = "Odnos pola i statusa plaćanja",
+       x = "Pol",
+       y = "Udeo (%)") +
+  scale_fill_manual(values = c("steelblue", "orange"),
+                    name = "Status plaćanja",
+                    labels = c("Ne kasni", "Kasni")) +
+  theme_minimal()
+
+
+# Obrazovanje vs status plaćanja
+table(df$EDUCATION, df$DEFAULT)
+prop.table(table(df$EDUCATION, df$DEFAULT), 1) * 100
+
+ggplot(df, aes(x = factor(EDUCATION,
+                          labels = c("Postdiplomsko", "Fakultetsko", "Srednja škola", "Osnovna škola", "Ostalo")),
+               fill = DEFAULT)) +
+  geom_bar(position = "fill") +
+  labs(title = "Uticaj obrazovanja na status plaćanja",
+       x = "Nivo obrazovanja",
+       y = "Udeo (%)") +
+  scale_fill_manual(values = c("steelblue", "orange"),
+                    name = "Status plaćanja",
+                    labels = c("Ne kasni", "Kasni")) +
+  theme_minimal()
+# Bračni status (MARRIAGE) vs status plaćanja (DEFAULT)
+table(df$MARRIAGE, df$DEFAULT)
+prop.table(table(df$MARRIAGE, df$DEFAULT), 1) * 100
+# Bračni status vs status plaćanja
+ggplot(df, aes(x = factor(MARRIAGE, labels = c("U braku", "Slobodan", "Ostalo")),
+               fill = DEFAULT)) +
+  geom_bar(position = "fill") +
+  labs(title = "Odnos bračnog statusa i kašnjenja u plaćanju",
+       x = "Bračni status",
+       y = "Udeo (%)") +
+  scale_fill_manual(values = c("steelblue", "orange"),
+                    name = "Status plaćanja",
+                    labels = c("Ne kasni", "Kasni")) +
+  theme_minimal()
+
+df %>%
+  group_by(SEX, EDUCATION, DEFAULT) %>%
+  summarise(broj = n()) %>%
+  mutate(udeo = round(broj / sum(broj) * 100, 2)) %>%
+  arrange(desc(udeo))
+
+ggplot(df, aes(x = factor(EDUCATION,
+                          labels = c("Postdiplomsko", "Fakultetsko", "Srednja škola", "Osnovna škola", "Ostalo")),
+               fill = DEFAULT)) +
+  geom_bar(position = "fill") +
+  facet_wrap(~ factor(SEX, labels = c("Muškarci", "Žene"))) +
+  labs(title = "Zajednički uticaj pola i obrazovanja na status plaćanja",
+       x = "Nivo obrazovanja",
+       y = "Udeo (%)") +
+  scale_fill_manual(values = c("steelblue", "orange"),
+                    name = "Status plaćanja",
+                    labels = c("Ne kasni", "Kasni")) +
+  theme_minimal()
 
 #=================================================================================================================
 # Kreiranje prosečnih vrednosti za račune i uplate
@@ -488,6 +502,87 @@ auc(roc_inter)
 # finansijskih promenljivih može pomoći modelu da bolje prepozna obrasce
 # Zaključak je da logistička regresija dobro opisuje odnose u podacima,
 # a i poboljšanja se mogu postići podešavanjem varijabli.
+
+#=======================================================================================================================
+
+library(rpart)
+install.packages("rpart.plot")
+library(rpart.plot)
+
+
+# Izgradnja stabla odluke
+tree_model <- rpart(
+  DEFAULT ~ LIMIT_BAL + AGE + avg_bill_amt + avg_pay_amt + ratio_pay_bill + ratio_bill_limit,
+  data = train_balanced,
+  method = "class"
+)
+
+# Prikaz stabla (grafikon)
+rpart.plot(tree_model,
+           type = 3,          # oblik stabla (3 = uredno prikazano)
+           fallen.leaves = TRUE,
+           cex = 0.7,         # veličina teksta
+           main = "Stablo odluke – klasifikacija klijenata")
+
+# Predikcija na test skupu
+tree_pred <- predict(tree_model, newdata = test_data, type = "class")
+
+# Računanje tačnosti
+tree_accuracy <- mean(tree_pred == test_data$DEFAULT)
+cat("Tačnost modela stabla odluke:", round(tree_accuracy * 100, 2), "%\n")
+
+# ROC kriva i AUC vrednost
+tree_prob <- predict(tree_model, newdata = test_data, type = "prob")[,2]
+tree_roc <- roc(as.numeric(test_data$DEFAULT), as.numeric(tree_prob))
+plot(tree_roc, col = "orange", main = "ROC kriva - Decision Tree")
+auc(tree_roc)
+
+install.packages("randomForest")
+
+library(randomForest)
+library(pROC)
+
+# Kreiranje Random Forest modela
+rf_model <- randomForest(
+  as.factor(DEFAULT) ~ LIMIT_BAL + AGE + avg_bill_amt + avg_pay_amt + ratio_pay_bill + ratio_bill_limit,
+  data = train_balanced,
+  ntree = 200,          # broj stabala
+  mtry = 3,             # broj promenljivih po stablu
+  importance = TRUE
+)
+
+# Prikaz važnosti atributa
+varImpPlot(rf_model, main = "Važnost atributa – Random Forest model")
+
+# Predikcija na test podacima
+rf_pred <- predict(rf_model, newdata = test_data, type = "class")
+
+# Računanje tačnosti
+rf_accuracy <- mean(rf_pred == test_data$DEFAULT)
+cat("Tačnost Random Forest modela:", round(rf_accuracy * 100, 2), "%\n")
+
+# ROC kriva i AUC vrednost
+rf_prob <- predict(rf_model, newdata = test_data, type = "prob")[,2]
+rf_roc <- roc(as.numeric(test_data$DEFAULT), as.numeric(rf_prob))
+plot(rf_roc, col = "darkgreen", main = "ROC kriva – Random Forest model")
+auc(rf_roc)
+
+# Uporedni prikaz performansi modela
+library(ggplot2)
+
+model_results <- data.frame(
+  Model = c("Logistic Regression", "Decision Tree", "Random Forest"),
+  Accuracy = c(56.4, 58.6, 73.3)
+)
+
+ggplot(model_results, aes(x = Model, y = Accuracy, fill = Model)) +
+  geom_bar(stat = "identity", width = 0.6) +
+  geom_text(aes(label = paste0(Accuracy, "%")), vjust = -0.4, size = 4) +
+  scale_fill_manual(values = c("#6BAED6", "#FD8D3C", "#74C476")) +
+  labs(title = "Poređenje tačnosti različitih modela",
+       x = "Model", y = "Tačnost (%)") +
+  theme_minimal() +
+  theme(legend.position = "none")
 
 #=======================================================================================================================
 # U ovom projektu analizirali smo podatke o korisnicima kreditnih kartica i pokušali da predvidimo
