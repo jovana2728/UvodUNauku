@@ -15,21 +15,13 @@ dim(df)
 
 summary(df)
 
-#Iz summarya možemo već zaključiti neke neregularnosti Education ima vrednosti koje ne bi smele postojati, kao što su 0 ili 6,
-#koje nisu navedene u listi dozvoljenih vrednosti, zatim u koloni mariage vidimo da postoji min vrednost 0, što takođe nije
-#definisano spiskom podrazumevanih vrednosti, za PAY kolone postoje min vrednosti -2 koje takođe nisu definisane podrazumevanim
-#vrednostima
-
 table(df$SEX)
-#Vrednosti su korektne, na osnovu odnosa primećujemo da ima više žena nego muškaraca
-
 table(df$EDUCATION)
 #Vrednost 0 je nedefinisana, vrednosti 5 i 6 smatraju se nepoznatim vrednostima,
 
 table(df$MARRIAGE)
 
 str(df)
-
 
 df %>% 
   filter(EDUCATION == 0 & MARRIAGE == 0) %>% 
@@ -493,15 +485,11 @@ auc(roc_inter)
 # i prosečnih uplata (avg_pay_amt).Hteli smo da proverimo da li kombinacija
 # ova dva faktora ima dodatni efekat na rizik kašnjenja
 #
-# Rezultati su pokazali da novi model ima nešto veću tačnost (57% a bilo je 56%)
-# i veću AUC vrednost (0.6435 a bilo je 0.6381)
 # Na ROC grafu (plava linija) vidi se da model sa interakcijom ima malu
 # prednost u većini tačaka.
 #
 # Iako poboljšanje nije veliko, pokazuje da dodavanje interakcija između
 # finansijskih promenljivih može pomoći modelu da bolje prepozna obrasce
-# Zaključak je da logistička regresija dobro opisuje odnose u podacima,
-# a i poboljšanja se mogu postići podešavanjem varijabli.
 
 #=======================================================================================================================
 
@@ -522,7 +510,7 @@ rpart.plot(tree_model,
            type = 3,          # oblik stabla (3 = uredno prikazano)
            fallen.leaves = TRUE,
            cex = 0.7,         # veličina teksta
-           main = "Stablo odluke – klasifikacija klijenata")
+           main = "Stablo odluke - klasifikacija klijenata")
 
 # Predikcija na test skupu
 tree_pred <- predict(tree_model, newdata = test_data, type = "class")
@@ -585,4 +573,3 @@ ggplot(model_results, aes(x = Model, y = Accuracy, fill = Model)) +
   theme(legend.position = "none")
 
 #=======================================================================================================================
-
