@@ -113,6 +113,17 @@ ggplot(df, aes(y = LIMIT_BAL)) +
 # Kod raspodele kreditnih limita vidi se da većina klijenata ima limit negde do oko 250.000 dolara.
 # Iznad kutije ima dosta tačkica koje predstavljaju klijente sa većim limitima, oni su očigledni outlieri.
 # Graf pokazuje da je raspodela asimetrična i da manji limiti preovlađuju.
+library(ggplot2)
+
+ggplot(df, aes(x = AGE, y = LIMIT_BAL)) +
+  geom_point(color = "#00AFBB", alpha = 0.6) +
+  labs(
+    title = "Odnos kreditnog limita i godina klijenata",
+    x = "Godine",
+    y = "Kreditni limit (u dolarima)"
+  ) +
+  theme_minimal()
+
 
 
 # Raspodela pola klijenata
@@ -573,3 +584,12 @@ ggplot(model_results, aes(x = Model, y = Accuracy, fill = Model)) +
   theme(legend.position = "none")
 
 #=======================================================================================================================
+
+ggplot(df, aes(x = LIMIT_BAL, y = BILL_AMT1)) +
+  geom_point(alpha = 0.5, color = "steelblue") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(title = "Scatter grafikon LIMIT_BAL vs BILL_AMT1",
+       x = "Kreditni limit",
+       y = "Iznos mesečnog računa") +
+  theme_minimal()
+ggplot(df,aes(x=LIMIT_BAL, y=BILL_AMT1))+ geom_point(alpha=0.5, color="blue")+geom_smooth(method=lm,se=FALSE, color="red")
